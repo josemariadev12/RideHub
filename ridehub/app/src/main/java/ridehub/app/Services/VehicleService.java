@@ -64,6 +64,20 @@ public class VehicleService {
        return toResponseDTO(vehicle);
     }
 
+    public Vehicle vehicleDriver(Vehicle vehicleDriver ){
+        Vehicle vehicle = new Vehicle();
+        
+        vehicle.setBrand(vehicleDriver.getBrand());
+        vehicle.setColor(vehicleDriver.getColor());
+        vehicle.setModel(vehicleDriver.getModel());
+        vehicle.setPlate(vehicleDriver.getPlate());
+        vehicle.setYear(vehicleDriver.getYear());
+
+        vehicleRepository.save(vehicle);
+        
+        return vehicle;
+    }
+
     public void delete(UUID id){
         Vehicle vehicle = vehicleRepository.findById(id).orElseThrow(()-> new IllegalArgumentException("ID não existe"));
         vehicleRepository.delete(vehicle);

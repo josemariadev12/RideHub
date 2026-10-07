@@ -1,7 +1,8 @@
 package ridehub.app.enums.RideEnums;
 
 public enum RideStatus {
-    REQUESTED,
+    SEARCHING,
+    IN_PROGRESS,
     ACCEPTED,
     COMPLETED,
     CANCELLED

@@ -8,14 +8,22 @@ import org.springframework.stereotype.Service;
 import lombok.RequiredArgsConstructor;
 import ridehub.app.DTOs.RideDTO.RideRequestDTO;
 import ridehub.app.DTOs.RideDTO.RideResponseDTO;
+import ridehub.app.DTOs.UserDTO.UserResponseDTO;
+import ridehub.app.Entity.Driver;
 import ridehub.app.Entity.Ride;
+import ridehub.app.Repository.DriverRepository;
 import ridehub.app.Repository.RideRepository;
+import ridehub.app.enums.DriverEnums.DriverDocsStatus;
+import ridehub.app.enums.DriverEnums.DriverStatus;
 import ridehub.app.enums.RideEnums.RideStatus;
 
 @Service @RequiredArgsConstructor 
 public class RideService {
 
     private final RideRepository rideRepository;
+    private final UserService userService;
+    private final DriverRepository driverRepository;
+
 
     public Ride toEntity(RideRequestDTO dto){
         Ride ride = new Ride();
@@ -31,9 +39,11 @@ public class RideService {
         return new RideResponseDTO(ride.getRideId(),ride.getOrigin(),ride.getDestination(),ride.getPrice(),ride.getRideStatus());   
     }
 
+    
+
     public RideResponseDTO create(RideRequestDTO dto){
         Ride ride = toEntity(dto);
-        ride.setRideStatus(RideStatus.REQUESTED);
+        ride.setRideStatus(RideStatus.SEARCHING);
         rideRepository.save(ride);
         return toResponseDTO(ride);
     }
@@ -64,4 +74,37 @@ public class RideService {
         rideRepository.delete(ride);
     }
 
+    public RideResponseDTO solicitateRide(RideRequestDTO dto, UserResponseDTO userDTO){
+        UserResponseDTO user = userService.findById(userDTO.userId());
+        
+        if(rideRepository.findByUserUserIdAndRideStatus(user.userId(), RideStatus.IN_PROGRESS).isEmpty()){
+            Ride ride = toEntity(dto);
+            rideRepository.save(ride);
+            return create(dto);
+
+        }else{         throw  new IllegalArgumentException("Ride cant Start. Finish your Ride"); }
+        
+    }
+
+    public List<Driver> solicitateDriver(RideResponseDTO dto){
+        Ride ride = rideRepository.findById(dto.rideId()).orElseThrow(() -> new IllegalArgumentException("Ride not found"));
+        List<Driver> drivers = driverRepository.findByDriverStatus(DriverStatus.AVAILABLE);
+        if(!drivers.isEmpty()  && ride.getRideStatus() == ride.getRideStatus().SEARCHING){
+
+            return drivers;
+            
+        }else throw new IllegalArgumentException("No available drivers");
+       
+    }
+
+    public RideResponseDTO accepptRide(RideResponseDTO dto, UUID id){
+        Ride ride = rideRepository.findById(dto.rideId()).orElseThrow(() -> new IllegalArgumentException("Ride not found"));
+        Driver driver = driverRepository.findById(id).orElseThrow("Rider Profile not found");
+        if(driver.getDriverStatus() == driver.getDriverStatus().AVAILABLE && ride.getRideStatus() == ride.getRideStatus().SEARCHING){
+            ride.setDriver(driver);
+            ride.setRideStatus(RideStatus.ACCEPTED);
+            driver.setDriverStatus(DriverStatus.BUSY);
+        }
+
+    }
 }

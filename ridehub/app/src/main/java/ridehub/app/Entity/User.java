@@ -1,5 +1,6 @@
 package ridehub.app.Entity;
 
+import java.util.List;
 import java.util.UUID;
 
 import jakarta.persistence.Column;
@@ -9,6 +10,8 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -47,5 +50,10 @@ public class User {
     @Column (name= "user_roles")
     private UserRoles userRoles;
 
+    @OneToOne (mappedBy="user")
+    private Driver driver;
+
+    @OneToMany (mappedBy="user")
+    private List<Ride> rides;
 
 }

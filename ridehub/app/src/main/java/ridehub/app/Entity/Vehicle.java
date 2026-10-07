@@ -7,6 +7,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -31,4 +32,7 @@ public class Vehicle {
 
     private String color;
     private Integer year;
+
+    @OneToOne (mappedBy="vehicle")
+    private Driver drive;
 }
