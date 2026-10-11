@@ -5,6 +5,7 @@ import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import ridehub.app.DTOs.RideDTO.RideRequestDTO;
 import ridehub.app.DTOs.RideDTO.RideResponseDTO;
@@ -13,7 +14,6 @@ import ridehub.app.Entity.Driver;
 import ridehub.app.Entity.Ride;
 import ridehub.app.Repository.DriverRepository;
 import ridehub.app.Repository.RideRepository;
-import ridehub.app.enums.DriverEnums.DriverDocsStatus;
 import ridehub.app.enums.DriverEnums.DriverStatus;
 import ridehub.app.enums.RideEnums.RideStatus;
 
@@ -90,21 +90,27 @@ public class RideService {
         Ride ride = rideRepository.findById(dto.rideId()).orElseThrow(() -> new IllegalArgumentException("Ride not found"));
         List<Driver> drivers = driverRepository.findByDriverStatus(DriverStatus.AVAILABLE);
         if(!drivers.isEmpty()  && ride.getRideStatus() == ride.getRideStatus().SEARCHING){
-
-            return drivers;
+            return drivers; // retorna a lista de motoristas
             
         }else throw new IllegalArgumentException("No available drivers");
        
     }
 
+    @Transactional 
     public RideResponseDTO accepptRide(RideResponseDTO dto, UUID id){
         Ride ride = rideRepository.findById(dto.rideId()).orElseThrow(() -> new IllegalArgumentException("Ride not found"));
         Driver driver = driverRepository.findById(id).orElseThrow("Rider Profile not found");
+
         if(driver.getDriverStatus() == driver.getDriverStatus().AVAILABLE && ride.getRideStatus() == ride.getRideStatus().SEARCHING){
+           
             ride.setDriver(driver);
             ride.setRideStatus(RideStatus.ACCEPTED);
             driver.setDriverStatus(DriverStatus.BUSY);
-        }
+
+            driverRepository.save(driver);
+            rideRepository.save(ride);
+
+        }else throw new IllegalArgumentException("Ride is no longer available");
 
     }
 }

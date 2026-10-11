@@ -1,8 +1,10 @@
 package ridehub.app.Services;
 
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
@@ -16,14 +18,15 @@ import ridehub.app.enums.UserEnums.UserType;
 @Service @RequiredArgsConstructor 
 public class UserService {
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
     public User toEntity(UserRequestDTO dto){
         User user = new User();
         user.setEmail(dto.email());
-        user.setPassword(dto.password());
+        user.setPassword(passwordEncoder.encode(dto.password()));
         user.setPhone(dto.phone());
         user.setUsername(dto.username());
-        user.setUserRoles(UserRoles.USER);
+        user.setUserRoles(Set.of(UserRoles.USER));
         user.setUserType(UserType.PASSENGER);
 
         return user;
@@ -35,15 +38,18 @@ public class UserService {
            
     }
 
-    public UserResponseDTO create(UserRequestDTO dto){
+    //public UserResponseDTO login(UserLoginDTO dto){}
+    
+   public UserResponseDTO create(UserRequestDTO dto) {
+        if (userRepository.findUserByEmail(dto.email()).isPresent()) {
+            throw new IllegalArgumentException("User already exists");
+        }
+
         User user = toEntity(dto);
         userRepository.save(user);
 
-        UserResponseDTO userResponseDTO = toResponse(user);
-
-        return userResponseDTO;
+        return toResponse(user);
     }
-
     
 
     public List<UserResponseDTO> findAll(){
