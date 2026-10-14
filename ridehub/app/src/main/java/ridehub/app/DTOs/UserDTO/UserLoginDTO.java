@@ -1,5 +1,9 @@
 package ridehub.app.DTOs.UserDTO;
 
-public record UserLoginDTO(String email, String password) {
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
+
+public record UserLoginDTO(@Email @NotBlank String email,@NotBlank String password) {
 
 }

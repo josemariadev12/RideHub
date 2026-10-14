@@ -9,5 +9,8 @@ public class AppApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(AppApplication.class, args);
 	}
-
+//proximo passo, adicionar @valid @email @notblank @size
+//adicionar exceptionHandlerGlobal
+//roles
+//tirar a senha do postgresql no commit
 }

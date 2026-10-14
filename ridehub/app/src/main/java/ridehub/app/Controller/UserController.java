@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import ridehub.app.DTOs.UserDTO.UserLoginDTO;
 import ridehub.app.DTOs.UserDTO.UserLoginResponseDTO;
@@ -46,13 +47,13 @@ public class UserController {
     }
 
     @PostMapping ("/register")
-    public ResponseEntity<UserResponseDTO> register(@RequestBody UserRequestDTO dto){
+    public ResponseEntity<UserResponseDTO> register(@Valid @RequestBody UserRequestDTO dto){
         
         return ResponseEntity.ok(userService.create(dto));
     }
 
     @PostMapping ("/login")
-    public ResponseEntity<UserLoginResponseDTO> login(@RequestBody UserLoginDTO dto){
+    public ResponseEntity<UserLoginResponseDTO> login(@Valid @RequestBody UserLoginDTO dto){
         
         var user = userDetailsService.loadUserByUsername(dto.email());
         if(passwordEncoder.matches(dto.password(), user.getPassword())==false){

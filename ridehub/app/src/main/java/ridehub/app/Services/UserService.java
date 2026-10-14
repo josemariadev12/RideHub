@@ -21,6 +21,7 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
 
     public User toEntity(UserRequestDTO dto){
+        System.out.println(dto);
         User user = new User();
         user.setEmail(dto.email());
         user.setPassword(passwordEncoder.encode(dto.password()));
